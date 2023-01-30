@@ -1,0 +1,21 @@
+version: "3.4"
+
+services:
+    dockerapp:
+        build:
+          context: .
+          dockerfile: Dockerfile
+        ports:
+          - "8080:80"
+        depends_on:
+          - db
+
+    db:
+        build: ./setup.sql
+        image: "mcr.microsoft.com/mssql/server:2022-latest"
+        ports:
+          - "1433:1433"
+
+        environment:
+            SA_PASSWORD: "Test1234567+"
+            ACCEPT_EULA: "Y"
