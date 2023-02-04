@@ -8,6 +8,11 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.VisualBasic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Hangfire;
+using MailKit.Security;
+using MimeKit.Text;
+using MimeKit;
+using MailKit.Net.Smtp;
 
 namespace DockerApp.Controllers
 {
@@ -58,9 +63,26 @@ namespace DockerApp.Controllers
                 UserDebts = new List<Debts>()
             };
             _context.Users.Add(user);
+            BackgroundJob.Enqueue(() => WelcomeEmail(request));
             await _context.SaveChangesAsync();
             return Ok("Başarıyla Kayıt Olundu.");
         }
+
+        public static void WelcomeEmail(UserRegisterRequest request)
+        {
+                var email = new MimeMessage();
+                email.From.Add(MailboxAddress.Parse(request.Email));
+                email.To.Add(MailboxAddress.Parse(request.Email));
+                email.Subject = "Başarıyla kayıt işlemi gerçekleşti!";
+                email.Body = new TextPart(TextFormat.Html) { Text = "<h1>Selam hoşgeldin</h1>" };
+                using var smtp = new SmtpClient();
+                smtp.Connect("smtp.ethereal.email", 587, SecureSocketOptions.StartTls);
+                smtp.Authenticate(request.Email,request.Password);
+                smtp.Send(email);
+                smtp.Disconnect(true);
+
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLoginRequest request)
         {

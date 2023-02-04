@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DockerApp.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20230204075242_initial")]
+    [Migration("20230207033821_initial")]
     partial class initial
     {
         /// <inheritdoc />
